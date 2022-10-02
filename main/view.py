@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 
 from flask import Blueprint, render_template, request
 
@@ -11,9 +12,18 @@ def main_index():
 
 @main_blueprint.route('/search/')
 def search_page():
-    substr = request.args.get('s')
-    posts = search_posts(substr)
-    return  render_template('post_list.html', posts=posts, substr=substr)
+    key_word = request.args.get('s')
+    try:
+        posts = search_posts(key_word)
+    except FileNotFoundError:
+        return "File Not Found"
+    except JSONDecodeError:
+        return "Can`t convert to JSON"
+    else:
+        return render_template('post_list.html', posts=posts, key_word=key_word)
+
+
+
 
 
 

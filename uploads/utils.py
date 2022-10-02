@@ -1,6 +1,7 @@
 import json
 
-from flask import render_template
+import loger as loger
+from flask import render_template, logging
 
 
 def load_posts(path='posts.json'):
@@ -10,24 +11,29 @@ def load_posts(path='posts.json'):
 
     return posts
 
-def search_posts(substr):
+def search_posts(key_word):
     posts_found = []
     posts_json = load_posts()
     for post in posts_json:
-        if substr in post['content']:
+        if key_word.lower() in post['content'].lower():
             posts_found.append(post)
-
+    loger.info(f"User search {posts_found}")
     return posts_found
 
 def save_picture(picture):
     filename = picture.filename
     filetype = filename.split('.')[-1]
     if filetype not in ['jpg', 'jpeg', 'svg', 'png']:
-        return
+        loger.info(f"{filename} is not a picture")
+        return "not images"
 
-    picture.save(f'./uploads/images/{filename}')
+    try:
+        picture.save(f'uploads/images/{filename}')
+    except Exception:
+        loger.error(f"Error with uploading file {filename}")
+        return "Error with uploading file"
 
-    return render_template('post_uploaded.html')
+    return f'/uploads/images/{filename}'
 
 def add_post(post):
     posts = load_posts()
@@ -37,5 +43,7 @@ def add_post(post):
 
 def save_posts_to_json(posts, path='posts.json'):
     with open(path, 'w', encoding='utf-8') as file:
-        json.dump(posts, file)
+        json.dump(posts, file, ensure_ascii=False)
+
+
 

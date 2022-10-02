@@ -17,10 +17,7 @@ def upload_post():
     content = request.form.get('content')
 
     picture_url = save_picture(picture)
+    post = {'pic': picture_url, 'content': content}
+    add_post(post)
 
-    if not picture_url:
-        return "not image"
-
-    add_post({'pic': picture_url, 'content': content})
-
-    return render_template('post_uploaded.html', picture=picture_url, content=content)
+    return render_template('post_uploaded.html', post=post)
